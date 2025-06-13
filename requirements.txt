@@ -1,0 +1,11 @@
+
+flask==3.0.3
+flask-session==0.8.0
+flask-cors==5.0.0
+python-dotenv==1.1.0 
+spotipy==2.24.0 
+tensorflow-macos==2.16.1 
+fer==22.5.1 
+moviepy==1.0.3 
+opencv-python-headless==4.11.0.86 
+imageio-ffmpeg==0.6.0
