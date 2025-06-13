@@ -12,8 +12,8 @@ __pycache__/
 # VSCode
 .vscode/
 
-# Environment
-.env
-
-
+# Flask session files
 .flask_session/
+
+# Environment variables
+.env
