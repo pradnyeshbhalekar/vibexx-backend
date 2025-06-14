@@ -1,41 +1,54 @@
 import os
 import logging
-from flask import Blueprint, request, redirect, session, url_for, render_template,jsonify
+from flask import Blueprint, request, redirect, session, url_for, render_template,jsonify,make_response
 import spotipy
 import streamlit as st
+from spotipy.oauth2 import SpotifyOAuth
+import urllib.parse
+
 import traceback
 import logging
+import json
 from spotipy.oauth2 import SpotifyOAuth
 from flask_cors import CORS # Import CORS
 
 top_artist_bp = Blueprint('top_artist', __name__)
-CORS(top_artist_bp, supports_credentials=True, origins=[
+# CORS(top_artist_bp, supports_credentials=True, origins=[
 
-    "http://localhost:3000",
-    "http://127.0.0.1:3000"
-]) # Apply CORS to the blueprint with credentials and origins
+#     "http://localhost:3000",
+#     "http://127.0.0.1:3000"
+# ]) # Apply CORS to the blueprint with credentials and origins
 
-def get_token():
-    token_info = st.session_state.token_info
-    print(token_info)
-    
-    if not token_info:
-        logging.error("Token not found in session")
-        return None
-    
-    oauth = SpotifyOAuth(
+def get_spotify_oauth():
+    return SpotifyOAuth(
         client_id=os.getenv("SPOTIFY_CLIENT_ID"),
         client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"),
-        redirect_uri=os.getenv("SPOTIFY_REDIRECT_URI"),
-        scope='user-read-private user-top-read playlist-modify-private'
+        redirect_uri="http://127.0.0.1:5000/callback",  # Must match Spotify Dashboard
+        scope="user-read-private user-top-read playlist-modify-private"
     )
-    
+
+
+def get_token():
+    token_cookie = request.cookies.get("token")
+    if not token_cookie:
+        print("❌ No token cookie found.")
+        return None
+
+    try:
+        decoded_token = urllib.parse.unquote(token_cookie)
+        token_info = json.loads(decoded_token)
+    except Exception as e:
+        print("❌ Failed to parse token cookie:", e)
+        return None
+
+    oauth = get_spotify_oauth()
+
     if oauth.is_token_expired(token_info):
+        print("🔁 Token expired, refreshing...")
         token_info = oauth.refresh_access_token(token_info['refresh_token'])
-        session['token_info'] = token_info
-        
-    sp = spotipy.Spotify(auth=token_info['access_token'])
-    return sp
+
+    print("✅ Token loaded successfully")
+    return spotipy.Spotify(auth=token_info['access_token'])
 
 
 @top_artist_bp.route('/top-artist') 

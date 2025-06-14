@@ -1,8 +1,9 @@
-from flask import Blueprint, Flask, render_template, request, redirect, url_for, session
+from flask import Blueprint, Flask, render_template, request, redirect, url_for, session,make_response
 import os
 import logging
-import streamlit as st
 from spotipy.oauth2 import SpotifyOAuth
+import urllib.parse
+import json
 
 spotify_login_bp = Blueprint('spotify', __name__)
 
@@ -26,7 +27,7 @@ def get_spotify_oauth():
         logging.info("SpotifyOAuth created")
         return oauth
     except Exception as e:
-        logging.error(f"Failed to create SpotifyOAuth: {e}")
+        logging.error(f"Failed to create SpotifyfOAuth: {e}")
         raise
 
 @spotify_login_bp.route('/login')
@@ -35,18 +36,29 @@ def login():
     auth_url = oauth.get_authorize_url()
     return redirect(auth_url)
 
-@spotify_login_bp.route('/callback')
+@spotify_login_bp.route("/callback")
 def callback():
-    oauth = get_spotify_oauth()
-    code = request.args.get('code')
+    oauth = SpotifyOAuth(
+        client_id=os.getenv("SPOTIFY_CLIENT_ID"),
+        client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"),
+        redirect_uri="http://127.0.0.1:5000/callback",  # Must match Spotify dashboard
+        scope="user-read-private user-top-read playlist-modify-private"
+    )
+    
+    code = request.args.get("code")
+    if not code:
+        return redirect("http://127.0.0.1:3000/error")
 
-    if code:
-        token_info = oauth.get_access_token(code)
-        st.session_state['token_info'] = token_info
-        print(token_info)
-        session.modified = True  # Force Flask to save session
+    token_info = oauth.get_access_token(code)
 
-        return redirect('http://localhost:3000/select-artists')  # Redirect to frontend home page
-    else:
-        logging.error("No code found in callback")
-        return redirect(url_for('spotify.login'))
+    # Create a response and set cookie
+    response = make_response(redirect("http://127.0.0.1:3000/select-artists"))
+    response.set_cookie(
+        "token",
+        urllib.parse.quote(json.dumps(token_info)), 
+        httponly=True,
+        samesite="Lax",
+        max_age=3600 
+    )
+
+    return response

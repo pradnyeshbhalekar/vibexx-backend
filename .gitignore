@@ -1,23 +1,31 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.env/
 .venv/
 
-# macOS
-.DS_Store
-
-# Logs
-*.log
-
-# VSCode
+# VSCode settings (optional)
 .vscode/
 
-# Flask session files
-.flask_session/
+# macOS files
+.DS_Store
+
+# Python distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Log files
+*.log
 
 # Environment variables
 .env
-.venv/
-flask_session/
-__pycache__/
-*.pyc
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+./flask_session
