@@ -26,10 +26,18 @@ def get_spotify_oauth():
         redirect_uri="http://127.0.0.1:5000/callback",  # Must match Spotify Dashboard
         scope="user-read-private user-top-read playlist-modify-private"
     )
-
-
 def get_token():
+    # Try reading Authorization header first
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        access_token = auth_header.split(" ")[1]
+        print("✅ Token from Authorization header")
+        return spotipy.Spotify(auth=access_token)
+
+    # Fallback to cookie method
     token_cookie = request.cookies.get("token")
+    print("🔍 Raw cookie:", token_cookie)
+
     if not token_cookie:
         print("❌ No token cookie found.")
         return None
@@ -42,20 +50,16 @@ def get_token():
         return None
 
     oauth = get_spotify_oauth()
-
     if oauth.is_token_expired(token_info):
-        print("🔁 Token expired, refreshing...")
         token_info = oauth.refresh_access_token(token_info['refresh_token'])
 
-    print("✅ Token loaded successfully")
     return spotipy.Spotify(auth=token_info['access_token'])
-
 
 @top_artist_bp.route('/top-artist') 
 def top_artist():
     sp = get_token()
     if sp is None:
-        return redirect(url_for('spotify.login'))  # also fixed: you missed return here
+        return redirect(url_for('spotify.login')) 
 
     try:
         top_artists_data = sp.current_user_top_artists(limit=30, time_range='medium_term')
