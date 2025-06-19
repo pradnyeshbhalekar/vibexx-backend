@@ -2,7 +2,7 @@ import flask
 from flask import Flask, session, request, redirect, url_for, jsonify, Blueprint
 from flask_session import Session
 from login import spotify_login_bp
-from topartist import top_artist_bp
+from playlist import playlist_bp
 from detect_mood import detectmood_bp
 
 import os
@@ -10,7 +10,7 @@ from flask_cors import CORS
 
 def create_app():
     app = Flask(__name__)
-    CORS(app, origins=['http://localhost:3000','http://127.0.0.1:3000'],supports_credentials=True)
+    CORS(app, origins=['http://localhost:3000','http://127.0.0.1:3000'],supports_credentials=True,methods=['GET','POST'])
 
 
     # Secret key for session management
@@ -29,7 +29,7 @@ def create_app():
 
     # Register Blueprints
     app.register_blueprint(spotify_login_bp)
-    app.register_blueprint(top_artist_bp)
+    app.register_blueprint(playlist_bp)
     app.register_blueprint(detectmood_bp)
 
     @app.route('/')
