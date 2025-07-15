@@ -68,10 +68,10 @@ def analyze_mood_transformer(text, genres=None):
     if not text and not genres:
         return "Neutral"
     try:
-        # Prioritize genre-based mood detection
+
         if genres:
             genres = [g.lower() for g in genres]
-            print(f"🎭 Mood analysis (genres): Genres={genres}")
+            print(f" Mood analysis (genres): Genres={genres}")
             happy_genres = ['pop', 'dance', 'upbeat', 'happy', 'bollywood', 'hip hop', 'r&b']
             sad_genres = ['blues', 'ballad', 'acoustic', 'sad']
             angry_genres = ['rock', 'metal', 'punk']
@@ -83,7 +83,7 @@ def analyze_mood_transformer(text, genres=None):
                 elif any(ag in genre for ag in angry_genres):
                     return "Angry"
 
-        # Fallback to track title
+
         if text:
             result = mood_classifier(text[:512])[0][0]
             label = result['label'].lower()
@@ -112,7 +112,7 @@ def get_youtube_tracks(artist_name, mood, allowed_artists):
             "Neutral": [""]
         }
         keyword = random.choice(mood_keywords[mood])
-        query = f"from:{artist_name} {keyword}".strip()  # Use 'from:' to restrict to artist
+        query = f"from:{artist_name} {keyword}".strip()  
         search_results = yt.search(query, filter="songs", limit=30)
         print(f"🔍 Searching YouTube Music for: {query}, Results: {len(search_results)}")
         random.shuffle(search_results)
@@ -120,7 +120,7 @@ def get_youtube_tracks(artist_name, mood, allowed_artists):
         for result in search_results:
             if result['resultType'] == 'song' and 'title' in result and 'artists' in result:
                 result_artist = result['artists'][0]['name'] if result['artists'] else artist_name
-                # Only include tracks by allowed artists (case-insensitive)
+
                 if any(result_artist.lower() == allowed.lower() for allowed in allowed_artists):
                     tracks.append({
                         "title": result['title'],
@@ -134,7 +134,7 @@ def get_youtube_tracks(artist_name, mood, allowed_artists):
 
 def map_youtube_to_spotify(sp, youtube_track):
     try:
-        # Exact match
+
         query = f"track:{youtube_track['title']} artist:{youtube_track['artist']}"
         results = sp.search(q=query, type="track", limit=1)
         if results['tracks']['items']:
@@ -144,7 +144,7 @@ def map_youtube_to_spotify(sp, youtube_track):
                 "artist": track['artists'][0]['name'],
                 "spotify_uri": track['uri']
             }
-        # Broader search
+
         query = f"{youtube_track['title']} {youtube_track['artist']}"
         results = sp.search(q=query, type="track", limit=1)
         if results['tracks']['items']:
@@ -229,7 +229,7 @@ def user_top():
             return jsonify({"error": "At least one artist must be selected"}), 400
 
         matched_tracks = []
-        seen_uris = set()  # Track unique Spotify URIs
+        seen_uris = set()  
         tracks_per_artist = 5
         allowed_artists = [artist['name'].lower() for artist in selected_artists]
 
@@ -247,7 +247,7 @@ def user_top():
             except Exception as e:
                 print(f" Invalid artist ID {artist_id}: {e}")
 
-        # Initial track fetch
+
         for artist in valid_artist_ids:
             artist_id = artist['id']
             artist_name = artist['name']
@@ -275,9 +275,9 @@ def user_top():
                     seen_uris.add(spotify_track['spotify_uri'])
                     track_count += 1
 
-        # Fallback: Fetch more tracks if too few
+
         if len(matched_tracks) < 20:
-            print(f"⚠️ Only {len(matched_tracks)} tracks matched for {mood}. Fetching more from YouTube...")
+            print(f" Only {len(matched_tracks)} tracks matched for {mood}. Fetching more from YouTube...")
             for artist in valid_artist_ids:
                 youtube_tracks = get_youtube_tracks(artist['name'], mood, allowed_artists)
                 for yt_track in youtube_tracks[:10]:
@@ -327,7 +327,7 @@ def get_playlist(playlist_id):
         if sp is None:
             return jsonify({"error": "Please authenticate again"}), 401
 
-        # Fetch playlist details from Spotify
+
         playlist = sp.playlist(playlist_id, fields="name,external_urls,tracks(items(track(name,artists(name),uri)))")
         tracks = [
             {

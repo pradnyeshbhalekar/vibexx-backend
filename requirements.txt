@@ -12,3 +12,7 @@ imageio-ffmpeg==0.6.0
 ytmusicapi
 transformers
 torch
+pymongo
+dnspython
+Flask-PyMongo
+essentia
