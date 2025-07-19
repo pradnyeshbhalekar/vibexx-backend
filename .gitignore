@@ -22,3 +22,6 @@ envexample
 
 # macOS
 .DS_Store
+
+
+.cache

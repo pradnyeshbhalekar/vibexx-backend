@@ -16,3 +16,5 @@ pymongo
 dnspython
 Flask-PyMongo
 essentia
+yt-dlp
+ffmpeg-python
